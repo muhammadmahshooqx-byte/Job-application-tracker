@@ -924,7 +924,6 @@ button { cursor: pointer; border: none; background: none; }
   position: sticky;
   bottom: 0;
   background: var(--card);
-  padding-top: 16px;
   border-top: 1px solid var(--border);
   margin: 0 -28px -28px;
   padding: 16px 28px;

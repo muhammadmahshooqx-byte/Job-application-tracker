@@ -707,8 +707,8 @@ function JobDetailModal({ job, profile, onClose, onLike, onSkip, notify }) {
 
 /* ── MATCHES PAGE ─────────────────────────────────────────────── */
 function MatchesPage({ notify }) {
-  const profile = (() => { try { return JSON.parse(localStorage.getItem('maxxProfile') || 'null') } catch { return null } })()
-  const interactions = (() => { try { return JSON.parse(localStorage.getItem('maxxInteractions') || '{}') } catch { return {} } })()
+  const [profile] = useState(() => { try { return JSON.parse(localStorage.getItem('maxxProfile') || 'null') } catch { return null } })
+  const [interactions] = useState(() => { try { return JSON.parse(localStorage.getItem('maxxInteractions') || '{}') } catch { return {} } })
   const liked = DEMO_JOBS.filter(j => interactions[j.id] === 'LIKE')
   const saved = DEMO_JOBS.filter(j => interactions[j.id] === 'SAVE')
   const [selectedJob, setSelectedJob] = useState(null)
@@ -784,7 +784,7 @@ function ApplicationsPage({ notify }) {
       finally { setLoading(false) }
     }
     load()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [notify]) // notify is stable (useCallback in root)
 
   const statusCounts = APP_STATUSES.reduce((acc, s) => {
     acc[s] = apps.filter(a => a.status === s || (s === 'INTERESTED' && !a.status)).length
