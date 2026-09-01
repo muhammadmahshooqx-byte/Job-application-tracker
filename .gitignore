@@ -1,0 +1,20 @@
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Java/Maven
+application-tracker/target/
+application-tracker/.idea/
+application-tracker/.classpath
+application-tracker/.project
+application-tracker/.settings/
+
+# Node/Vite
+tracker-frontend/node_modules/
+tracker-frontend/dist/
+tracker-frontend/.vite/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
