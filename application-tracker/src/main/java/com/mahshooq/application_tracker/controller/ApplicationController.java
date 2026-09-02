@@ -64,6 +64,15 @@ public class ApplicationController {
         return ResponseEntity.ok(applicationRepository.findByUserAndStatus(user, applicationStatus));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Application> getById(@PathVariable Long id, Authentication authentication) {
+        User user = findCurrentUser(authentication);
+        return applicationRepository.findById(id)
+                .filter(existing -> existing.getUser().getId().equals(user.getId()))
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id,
                                     @Valid @RequestBody Application application,
@@ -79,6 +88,7 @@ public class ApplicationController {
                     existing.setStatus(application.getStatus());
                     existing.setDateApplied(application.getDateApplied());
                     existing.setNotes(application.getNotes());
+                    existing.setJobDescription(application.getJobDescription());
                     return ResponseEntity.ok(applicationRepository.save(existing));
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
