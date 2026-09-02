@@ -4,6 +4,7 @@ import com.mahshooq.application_tracker.model.Application;
 import com.mahshooq.application_tracker.model.User;
 import com.mahshooq.application_tracker.repository.ApplicationRepository;
 import com.mahshooq.application_tracker.repository.UserRepository;
+import com.mahshooq.application_tracker.dto.ErrorResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -54,7 +55,7 @@ public class ApplicationController {
         try {
             applicationStatus = Application.Status.valueOf(status.toUpperCase());
         } catch (IllegalArgumentException exception) {
-            return ResponseEntity.badRequest().body("Invalid application status: " + status);
+            return ResponseEntity.badRequest().body(new ErrorResponse("Invalid application status: " + status));
         }
 
         User user = findCurrentUser(authentication);
