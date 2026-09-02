@@ -2,6 +2,8 @@ package com.mahshooq.application_tracker.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
 @Entity
@@ -17,6 +19,13 @@ public class Application {
 
     @NotBlank
     private String jobRole;
+
+    @Size(max = 255, message = "Location must be at most 255 characters")
+    private String location;
+
+    @Size(max = 2048, message = "Job URL must be at most 2048 characters")
+    @Pattern(regexp = "^$|^https?://.+", message = "Job URL must start with http:// or https://")
+    private String jobUrl;
 
     @Enumerated(EnumType.STRING)
     private Status status;
@@ -59,6 +68,22 @@ public class Application {
 
     public void setJobRole(String jobRole) {
         this.jobRole = jobRole;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public String getJobUrl() {
+        return jobUrl;
+    }
+
+    public void setJobUrl(String jobUrl) {
+        this.jobUrl = jobUrl;
     }
 
     public Status getStatus() {
