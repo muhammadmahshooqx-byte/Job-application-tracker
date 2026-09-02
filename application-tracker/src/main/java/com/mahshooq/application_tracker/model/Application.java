@@ -40,7 +40,7 @@ public class Application {
     private User user;
 
     public enum Status {
-        APPLIED, INTERVIEW, OFFER, REJECTED
+        SAVED, APPLIED, INTERVIEW, OFFER, REJECTED
     }
 
     public Application() {

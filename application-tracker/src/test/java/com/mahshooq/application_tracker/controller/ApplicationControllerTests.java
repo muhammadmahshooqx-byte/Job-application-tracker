@@ -149,4 +149,31 @@ class ApplicationControllerTests {
         mockMvc.perform(get("/api/applications"))
                 .andExpect(status().isForbidden());
     }
+
+    @Test
+    void savedStatusIsAcceptedOnCreateAndStatusUpdate() throws Exception {
+        mockMvc.perform(post("/api/applications")
+                .header("Authorization", "Bearer " + tokenA)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"companyName\":\"Interested Inc\",\"jobRole\":\"Analyst\",\"status\":\"SAVED\","
+                        + "\"dateApplied\":\"2024-02-01\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.status").value("SAVED"));
+
+        MvcResult created = mockMvc.perform(post("/api/applications")
+                .header("Authorization", "Bearer " + tokenA)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"companyName\":\"Another Co\",\"jobRole\":\"Engineer\",\"status\":\"APPLIED\","
+                        + "\"dateApplied\":\"2024-02-02\"}"))
+                .andExpect(status().isCreated())
+                .andReturn();
+        long id = objectMapper.readTree(created.getResponse().getContentAsString()).get("id").asLong();
+
+        mockMvc.perform(patch("/api/applications/" + id + "/status")
+                .header("Authorization", "Bearer " + tokenA)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"status\":\"SAVED\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("SAVED"));
+    }
 }
