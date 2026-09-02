@@ -4,11 +4,14 @@ import com.mahshooq.application_tracker.model.Application;
 import com.mahshooq.application_tracker.model.User;
 import com.mahshooq.application_tracker.repository.ApplicationRepository;
 import com.mahshooq.application_tracker.repository.UserRepository;
+import com.mahshooq.application_tracker.dto.ErrorResponse;
+import com.mahshooq.application_tracker.dto.StatusUpdateRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -54,11 +57,20 @@ public class ApplicationController {
         try {
             applicationStatus = Application.Status.valueOf(status.toUpperCase());
         } catch (IllegalArgumentException exception) {
-            return ResponseEntity.badRequest().body("Invalid application status: " + status);
+            return ResponseEntity.badRequest().body(new ErrorResponse("Invalid application status: " + status));
         }
 
         User user = findCurrentUser(authentication);
         return ResponseEntity.ok(applicationRepository.findByUserAndStatus(user, applicationStatus));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Application> getById(@PathVariable Long id, Authentication authentication) {
+        User user = findCurrentUser(authentication);
+        return applicationRepository.findById(id)
+                .filter(existing -> existing.getUser().getId().equals(user.getId()))
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
@@ -71,9 +83,26 @@ public class ApplicationController {
                 .map(existing -> {
                     existing.setCompanyName(application.getCompanyName());
                     existing.setJobRole(application.getJobRole());
+                    existing.setLocation(application.getLocation());
+                    existing.setJobUrl(application.getJobUrl());
                     existing.setStatus(application.getStatus());
                     existing.setDateApplied(application.getDateApplied());
                     existing.setNotes(application.getNotes());
+                    existing.setJobDescription(application.getJobDescription());
+                    return ResponseEntity.ok(applicationRepository.save(existing));
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<?> updateStatus(@PathVariable Long id,
+                                          @Valid @RequestBody StatusUpdateRequest request,
+                                          Authentication authentication) {
+        User user = findCurrentUser(authentication);
+        return applicationRepository.findById(id)
+                .filter(existing -> existing.getUser().getId().equals(user.getId()))
+                .map(existing -> {
+                    existing.setStatus(request.getStatus());
                     return ResponseEntity.ok(applicationRepository.save(existing));
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
